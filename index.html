@@ -382,7 +382,17 @@
     display:flex; align-items:center; justify-content:center;
     opacity:0.75;
     transition: opacity .3s, transform .3s;
+  } 
+  /* VIDEO FIX FOR MOBILE */
+#intro-video {
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  #intro-video {
+    object-fit: contain;
   }
+}
   .music-btn:hover{ opacity:1; transform:scale(1.06); }
 
   @media (max-width:380px){
