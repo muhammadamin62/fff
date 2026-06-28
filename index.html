@@ -61,7 +61,11 @@
   .screen.active{
     opacity:1; visibility:visible; pointer-events:auto; filter:blur(0);
   }
+#intro-video { object-fit: cover; }
 
+@media (max-width: 768px) {
+  #intro-video { object-fit: contain; }
+}
   /* ---------- glass card ---------- */
   .glass-card{
     position:relative;
