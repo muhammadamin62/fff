@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Асалим 🤍</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#04050d;
+    --bg-1:#0a0e22;
+    --bg-2:#11173a;
+    --glass-fill:rgba(255,255,255,0.05);
+    --glass-border:rgba(255,255,255,0.16);
+    --ink:#f3efe8;
+    --ink-dim:rgba(243,239,232,0.62);
+    --starlight:#cbd3ff;
+    --rose:#fbfaf7;
+    --ember:#e7c9a3;
+    --err:#e9a6a6;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, var(--bg-2) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 85% 100%, rgba(40,30,70,0.5) 0%, transparent 60%),
+      var(--bg-0);
+    overflow:hidden;
+    font-family:'Manrope', sans-serif;
+    color:var(--ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #stars-canvas{
+    position:fixed; inset:0; z-index:0; display:block;
+  }
+
+  .petals-layer{
+    position:fixed; inset:0; z-index:5; pointer-events:none; overflow:hidden;
+  }
+  .petal{
+    position:absolute; top:-60px; will-change:transform, opacity;
+    filter:drop-shadow(0 0 6px rgba(255,255,255,0.35));
+    opacity:0;
+  }
+  .petal svg{ display:block; }
+
+  /* ---------- screens ---------- */
+  .screen{
+    position:fixed; inset:0; z-index:10;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    opacity:0; visibility:hidden; pointer-events:none;
+    filter:blur(14px);
+    transition: opacity 1.4s cubic-bezier(.22,.61,.36,1), filter 1.4s cubic-bezier(.22,.61,.36,1);
+  }
+  .screen.active{
+    opacity:1; visibility:visible; pointer-events:auto; filter:blur(0);
+  }
+
+  /* ---------- glass card ---------- */
+  .glass-card{
+    position:relative;
+    width:min(420px, 100%);
+    padding:42px 32px 36px;
+    border-radius:28px;
+    background:var(--glass-fill);
+    border:1px solid var(--glass-border);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.03) inset,
+      0 30px 80px -20px rgba(0,0,0,0.6),
+      0 0 60px -10px rgba(180,170,255,0.18);
+    text-align:center;
+  }
+  .glass-card.shake{ animation: shakeCard 0.55s ease; }
+  @keyframes shakeCard{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-8px); }
+    40%{ transform:translateX(7px); }
+    60%{ transform:translateX(-5px); }
+    80%{ transform:translateX(4px); }
+  }
+
+  .lock-icon{
+    font-size:30px; margin-bottom:14px; opacity:0.9;
+    filter:drop-shadow(0 0 10px rgba(255,255,255,0.25));
+  }
+
+  h1.title{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:clamp(28px,6vw,36px);
+    margin:0 0 8px;
+    letter-spacing:0.5px;
+    color:var(--rose);
+    text-shadow:0 0 24px rgba(255,255,255,0.25);
+  }
+  p.subtitle{
+    margin:0 0 26px;
+    font-size:14px;
+    color:var(--ink-dim);
+    font-weight:400;
+    letter-spacing:0.2px;
+  }
+
+  input#password-input{
+    width:100%;
+    padding:14px 16px;
+    font-size:16px;
+    text-align:center;
+    letter-spacing:1.5px;
+    border-radius:14px;
+    border:1px solid var(--glass-border);
+    background:rgba(255,255,255,0.04);
+    color:var(--ink);
+    outline:none;
+    font-family:'Manrope', sans-serif;
+    transition: border-color .3s, box-shadow .3s;
+  }
+  input#password-input::placeholder{ color:rgba(243,239,232,0.32); letter-spacing:1px; }
+  input#password-input:focus{
+    border-color:rgba(203,211,255,0.55);
+    box-shadow:0 0 0 4px rgba(203,211,255,0.08);
+  }
+
+  button{
+    font-family:'Manrope', sans-serif;
+    cursor:pointer;
+    border:none;
+    outline:none;
+  }
+
+  .btn-primary{
+    margin-top:18px;
+    width:100%;
+    padding:14px 16px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.4px;
+    color:#1a1730;
+    background:linear-gradient(135deg, #fdfbf7, #d9d4ff);
+    box-shadow:0 10px 30px -8px rgba(217,212,255,0.45);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 14px 36px -8px rgba(217,212,255,0.6); }
+  .btn-primary:active{ transform:translateY(0px) scale(0.98); }
+
+  .error-msg{
+    margin:14px 0 0;
+    min-height:18px;
+    font-size:13.5px;
+    color:var(--err);
+    opacity:0;
+    transform:translateY(-4px);
+    transition:opacity .4s, transform .4s;
+  }
+  .error-msg.show{ opacity:1; transform:translateY(0); }
+
+  /* ---------- message screen ---------- */
+  .message-card{ width:min(480px, 100%); padding:46px 30px; min-height:220px; }
+  .typewriter{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(19px, 4.4vw, 24px);
+    line-height:1.65;
+    color:var(--rose);
+    text-shadow:0 0 18px rgba(255,255,255,0.18);
+    min-height:120px;
+    white-space:pre-wrap;
+  }
+  .typewriter .cursor{
+    display:inline-block;
+    width:2px; height:1em;
+    background:var(--rose);
+    margin-left:2px;
+    vertical-align:-2px;
+    animation:blink 0.9s steps(2) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .cta{
+    margin-top:30px;
+    padding:13px 38px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--ink);
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(10px);
+    opacity:0; transform:translateY(10px);
+    transition: opacity .8s, transform .8s, box-shadow .3s, background .3s;
+  }
+  .cta.visible{ opacity:1; transform:translateY(0); }
+  .cta:hover{ background:rgba(255,255,255,0.12); box-shadow:0 0 30px -4px rgba(255,255,255,0.3); }
+
+  /* ---------- memory screen ---------- */
+  .memory-content{ text-align:center; width:min(360px, 88vw); }
+  .heartbeat-glow{
+    width:90px; height:90px; margin:0 auto 18px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(231,201,163,0.35), transparent 70%);
+    animation: heartbeat 2.6s ease-in-out infinite;
+  }
+  @keyframes heartbeat{
+    0%,100%{ transform:scale(0.85); opacity:0.5; }
+    50%{ transform:scale(1.15); opacity:0.9; }
+  }
+  .memory-hint{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:17px;
+    color:var(--ink-dim);
+    letter-spacing:0.3px;
+    margin:0 0 20px;
+  }
+
+  .memory-frame{
+    position:relative;
+    width:100%;
+    aspect-ratio: 4/5;
+    border-radius:24px;
+    overflow:hidden;
+    background:var(--glass-fill);
+    border:1px solid var(--glass-border);
+    backdrop-filter: blur(18px);
+    box-shadow:
+      0 25px 70px -18px rgba(0,0,0,0.65),
+      0 0 50px -8px rgba(180,170,255,0.16);
+  }
+  .memory-frame img{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    opacity:0;
+    transform:scale(1.04);
+    transition: opacity 1.6s ease, transform 6s ease;
+  }
+  .memory-frame img.show{
+    opacity:1;
+    transform:scale(1);
+  }
+  .memory-frame::after{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(4,5,13,0) 55%, rgba(4,5,13,0.55) 100%);
+    pointer-events:none;
+  }
+  .memory-dots{
+    display:flex; justify-content:center; gap:6px;
+    margin-top:16px;
+  }
+  .memory-dots span{
+    width:5px; height:5px; border-radius:50%;
+    background:rgba(255,255,255,0.3);
+    transition: background .4s, transform .4s;
+  }
+  .memory-dots span.active{
+    background:rgba(255,255,255,0.9);
+    transform:scale(1.3);
+  }
+
+  /* ---------- final screen ---------- */
+  .final-content{ text-align:center; position:relative; }
+  .heart-outline{ width:90px; height:90px; margin:0 auto 22px; opacity:0.9; }
+  .heart-outline svg{ width:100%; height:100%; }
+  .heart-outline path{
+    fill:none;
+    stroke:var(--rose);
+    stroke-width:1.4;
+    stroke-dasharray:340;
+    stroke-dashoffset:340;
+    filter:drop-shadow(0 0 8px rgba(255,255,255,0.4));
+    transition: stroke-dashoffset 2.6s cubic-bezier(.22,.61,.36,1);
+  }
+  .heart-outline.drawn path{ stroke-dashoffset:0; }
+  .heart-outline.pulse path{ animation: heartPulse 3.4s ease-in-out infinite; }
+  @keyframes heartPulse{
+    0%,100%{ opacity:0.55; filter:drop-shadow(0 0 6px rgba(255,255,255,0.3)); }
+    50%{ opacity:1; filter:drop-shadow(0 0 16px rgba(255,255,255,0.55)); }
+  }
+
+  .final-text{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:clamp(24px, 5.4vw, 34px);
+    color:var(--rose);
+    text-shadow:0 0 30px rgba(255,255,255,0.3);
+    opacity:0;
+    transform:translateY(8px);
+    transition: opacity 2s ease, transform 2s ease;
+    margin:0;
+    padding:0 10px;
+  }
+  .final-text.shown{ opacity:1; transform:translateY(0); }
+  .final-text.faded{ opacity:0.08; transition: opacity 6s ease; }
+
+  /* ---------- cinematic card entrance ---------- */
+  .glass-card, .message-card{
+    transform: scale(0.93) translateY(18px);
+    transition: transform 1.3s cubic-bezier(.22,.61,.36,1), opacity 1.3s ease, box-shadow .4s;
+  }
+  .screen.active .glass-card{
+    transform: scale(1) translateY(0);
+  }
+
+  /* ---------- sparkle dust ---------- */
+  .sparkle-layer{
+    position:fixed; inset:0; z-index:4; pointer-events:none; overflow:hidden;
+  }
+  .sparkle{
+    position:absolute;
+    width:3px; height:3px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,247,222,0.95), rgba(255,247,222,0));
+    opacity:0;
+    filter:drop-shadow(0 0 4px rgba(255,236,190,0.7));
+  }
+
+  /* ---------- video screen ---------- */
+  #screen-video{ padding:0; background:#000; }
+  #intro-video{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    background:#000;
+  }
+  .video-vignette{
+    position:absolute; inset:0;
+    background:radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,0.55) 100%);
+    pointer-events:none;
+  }
+  .skip-btn{
+    position:absolute; bottom:30px; right:24px; z-index:25;
+    padding:10px 20px;
+    border-radius:999px;
+    font-size:13px;
+    letter-spacing:0.8px;
+    color:var(--ink);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(12px);
+    opacity:0.75;
+    transition: opacity .3s, transform .3s;
+  }
+  .skip-btn:hover{ opacity:1; transform:translateY(-1px); }
+  .sound-hint{
+    position:absolute; top:26px; left:50%; transform:translateX(-50%);
+    font-size:12.5px; letter-spacing:0.5px;
+    color:rgba(255,255,255,0.65);
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:999px;
+    padding:7px 16px;
+    backdrop-filter: blur(10px);
+    opacity:0; transition: opacity .5s;
+    pointer-events:none;
+  }
+  .sound-hint.show{ opacity:1; }
+  .music-btn{
+    position:fixed; bottom:22px; right:22px; z-index:50;
+    width:46px; height:46px; border-radius:50%;
+    background:var(--glass-fill);
+    border:1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    color:var(--ink);
+    font-size:17px;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0.75;
+    transition: opacity .3s, transform .3s;
+  }
+  .music-btn:hover{ opacity:1; transform:scale(1.06); }
+
+  @media (max-width:380px){
+    .glass-card{ padding:32px 22px 28px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+<div class="sparkle-layer" id="sparkle-layer"></div>
+<div class="petals-layer" id="petals-layer"></div>
+
+<!-- SCREEN 0: INTRO VIDEO -->
+<section class="screen" id="screen-video">
+  <video id="intro-video" src="media/intro.mp4" playsinline></video>
+  <div class="video-vignette"></div>
+  <p class="sound-hint" id="sound-hint">Товушни ёқиш учун экранга бос 🔈</p>
+  <button class="skip-btn" id="skip-video-btn">Ўтказиб юбориш ›</button>
+</section>
+
+<!-- SCREEN 1: LOGIN -->
+<section class="screen active" id="screen-login">
+  <div class="glass-card" id="login-card">
+    <div class="lock-icon">🔒</div>
+    <h1 class="title">Асалим 🤍</h1>
+    <p class="subtitle">Парольни кирит. чатимздаги охирги санани</p>
+    <input id="password-input" type="text" inputmode="numeric" placeholder="дд/мм/йй" maxlength="10" autocomplete="off">
+    <button class="btn-primary" id="login-btn">Кириш</button>
+    <p class="error-msg" id="error-msg"></p>
+  </div>
+</section>
+
+<!-- SCREEN 2: LOVE MESSAGE -->
+<section class="screen" id="screen-message">
+  <div class="glass-card message-card">
+    <p class="typewriter" id="typewriter-text"></p>
+    <button class="cta" id="click-btn">Клик</button>
+  </div>
+</section>
+
+<!-- SCREEN 3: MEMORY / TRANSITION -->
+<section class="screen" id="screen-memory">
+  <div class="memory-content">
+    <div class="heartbeat-glow"></div>
+    <p class="memory-hint">бир лахза кутиб тур...</p>
+    <div class="memory-frame" id="memory-frame">
+      <img src="media/memory-1.jpg" alt="">
+      <img src="media/memory-2.jpg" alt="">
+      <img src="media/memory-3.jpg" alt="">
+      <img src="media/memory-4.jpg" alt="">
+      <img src="media/memory-5.jpg" alt="">
+      <img src="media/memory-6.jpg" alt="">
+    </div>
+    <div class="memory-dots" id="memory-dots"></div>
+  </div>
+</section>
+
+<!-- SCREEN 4: FINAL -->
+<section class="screen" id="screen-final">
+  <div class="final-content">
+    <div class="heart-outline" id="heart-outline">
+      <svg viewBox="0 0 100 100">
+        <path d="M50,88 C8,60 -12,18 24,7 C42,1 50,16 50,16 C50,16 58,1 76,7 C112,18 92,60 50,88 Z"/>
+      </svg>
+    </div>
+    <p class="final-text" id="final-text">Ман сани севаман, асалим 🤍</p>
+  </div>
+</section>
+
+<button class="music-btn" id="music-toggle" title="Мусиқа">🎵</button>
+<audio id="bg-music" src="music.mp3" loop preload="none"></audio>
+
+<script>
+/* =========================================================
+   0. CONFIG
+========================================================= */
+const CORRECT_PASSWORD = "16/06/2026";
+const LOVE_TEXT = "Асалим... Сани соғиндим ёмон. Лекин ёзолмадим. Ёзмоқчи эдим... Проста шу сайтни тайёрлаб кейин ҳамма нарсани айтаман деб ўтиргандим...   Сани согиндиииииим.  'minavaduriy'";
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* =========================================================
+   1. STARRY SKY (canvas, twinkle + soft mouse parallax)
+========================================================= */
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+let mouseX = 0, mouseY = 0, parX = 0, parY = 0;
+
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  buildStars();
+}
+function buildStars(){
+  const count = Math.min(220, Math.floor((window.innerWidth * window.innerHeight) / 6500));
+  stars = Array.from({length:count}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.3 + 0.3,
+    baseAlpha: Math.random() * 0.6 + 0.25,
+    phase: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.4 + 0.08,
+    drift: Math.random() * 0.15 + 0.02
+  }));
+}
+function drawStars(t){
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+  parX += (mouseX - parX) * 0.04;
+  parY += (mouseY - parY) * 0.04;
+  for(const s of stars){
+    const twinkle = reduceMotion ? s.baseAlpha : s.baseAlpha + Math.sin(t * 0.001 * s.speed + s.phase) * 0.25;
+    const y = (s.y + (reduceMotion ? 0 : t * 0.005 * s.drift)) % canvas.height;
+    const x = s.x + parX * (s.r * 4);
+    const yy = y + parY * (s.r * 4);
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(${203+Math.floor(s.r*20)},${211},255,${Math.max(0,Math.min(1,twinkle))})`;
+    ctx.arc(x, yy, s.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  requestAnimationFrame(drawStars);
+}
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('mousemove', (e) => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+resizeCanvas();
+requestAnimationFrame(drawStars);
+
+/* =========================================================
+   2. FALLING PETALS
+========================================================= */
+const petalsLayer = document.getElementById('petals-layer');
+function spawnPetal(){
+  const petal = document.createElement('div');
+  petal.className = 'petal';
+  const size = 14 + Math.random() * 16;
+  petal.innerHTML = `<svg width="${size}" height="${size*1.5}" viewBox="0 0 40 60">
+      <path d="M20 0 C35 15 35 45 20 60 C5 45 5 15 20 0 Z" fill="#fbfaf7" opacity="0.85"/>
+    </svg>`;
+  const startX = Math.random() * window.innerWidth;
+  const duration = 9 + Math.random() * 7;
+  const sway = (Math.random() - 0.5) * 160;
+  const rotate = (Math.random() - 0.5) * 360;
+  petal.style.left = startX + 'px';
+  petal.style.transform = 'translate(0,0) rotate(0deg)';
+  petalsLayer.appendChild(petal);
+
+  const anim = petal.animate([
+    { transform:`translate(0,-40px) rotate(0deg)`, opacity:0 },
+    { transform:`translate(${sway*0.3}px, ${window.innerHeight*0.4}px) rotate(${rotate*0.4}deg)`, opacity:0.85, offset:0.25 },
+    { transform:`translate(${sway}px, ${window.innerHeight*1.05}px) rotate(${rotate}deg)`, opacity:0 }
+  ], { duration: duration*1000, easing:'ease-in-out' });
+  anim.onfinish = () => petal.remove();
+}
+let petalInterval = null;
+function setPetalDensity(intervalMs){
+  if(petalInterval) clearInterval(petalInterval);
+  if(reduceMotion) return;
+  petalInterval = setInterval(spawnPetal, intervalMs);
+}
+setPetalDensity(1800); // sparse on login screen
+
+/* =========================================================
+   2b. SPARKLE DUST (ambient golden particles)
+========================================================= */
+const sparkleLayer = document.getElementById('sparkle-layer');
+function spawnSparkle(){
+  const s = document.createElement('div');
+  s.className = 'sparkle';
+  const size = 2 + Math.random() * 3;
+  s.style.width = size + 'px';
+  s.style.height = size + 'px';
+  const x = Math.random() * window.innerWidth;
+  const y = Math.random() * window.innerHeight;
+  s.style.left = x + 'px';
+  s.style.top = y + 'px';
+  sparkleLayer.appendChild(s);
+  const anim = s.animate([
+    { opacity:0, transform:'scale(0.4) translateY(0)' },
+    { opacity:0.9, transform:'scale(1.2) translateY(-14px)', offset:0.5 },
+    { opacity:0, transform:'scale(0.5) translateY(-30px)' }
+  ], { duration: 2600 + Math.random()*1400, easing:'ease-in-out' });
+  anim.onfinish = () => s.remove();
+}
+if(!reduceMotion) setInterval(spawnSparkle, 350);
+
+/* =========================================================
+   2c. ROSE SHOWER BURST (on correct password)
+========================================================= */
+function roseBurst(total = 46){
+  let sent = 0;
+  const burstTimer = setInterval(() => {
+    spawnPetal();
+    sent++;
+    if(sent >= total) clearInterval(burstTimer);
+  }, 45);
+}
+const screens = {
+  video: document.getElementById('screen-video'),
+  login: document.getElementById('screen-login'),
+  message: document.getElementById('screen-message'),
+  memory: document.getElementById('screen-memory'),
+  final: document.getElementById('screen-final')
+};
+function goTo(name){
+  Object.values(screens).forEach(s => s.classList.remove('active'));
+  screens[name].classList.add('active');
+}
+
+/* =========================================================
+   4. LOGIN LOGIC
+========================================================= */
+const input = document.getElementById('password-input');
+const loginBtn = document.getElementById('login-btn');
+const loginCard = document.getElementById('login-card');
+const errorMsg = document.getElementById('error-msg');
+
+input.addEventListener('input', (e) => {
+  let digits = e.target.value.replace(/\D/g,'').slice(0,8);
+  let out = digits.slice(0,2);
+  if(digits.length >= 3) out += '/' + digits.slice(2,4);
+  if(digits.length >= 5) out += '/' + digits.slice(4,8);
+  e.target.value = out;
+  errorMsg.classList.remove('show');
+});
+input.addEventListener('keydown', (e) => { if(e.key === 'Enter') tryLogin(); });
+loginBtn.addEventListener('click', tryLogin);
+
+function tryLogin(){
+  if(input.value.trim() === CORRECT_PASSWORD){
+    roseBurst(50);
+    loginCard.style.transition = 'transform .9s ease, opacity .9s ease';
+    setTimeout(() => {
+      setPetalDensity(2200);
+      playIntroVideo();
+    }, 1100);
+  } else {
+    errorMsg.textContent = "😔 Нима... мани есингдан чиқордингми уже?";
+    errorMsg.classList.add('show');
+    loginCard.classList.remove('shake');
+    requestAnimationFrame(() => loginCard.classList.add('shake'));
+    setTimeout(() => loginCard.classList.remove('shake'), 600);
+  }
+}
+
+/* =========================================================
+   4b. INTRO VIDEO
+========================================================= */
+const introVideo = document.getElementById('intro-video');
+const skipVideoBtn = document.getElementById('skip-video-btn');
+const soundHint = document.getElementById('sound-hint');
+let videoActive = false;
+
+function playIntroVideo(){
+  goTo('video');
+  videoActive = true;
+  introVideo.currentTime = 0;
+  introVideo.muted = false;
+  introVideo.volume = 0.9;
+  const playPromise = introVideo.play();
+  if(playPromise && playPromise.catch){
+    playPromise.catch(() => {
+      // браузер блокирует звук без явного жеста — предлагаем тапнуть
+      soundHint.classList.add('show');
+      introVideo.muted = true;
+      introVideo.play().catch(goToMessageScreen);
+    });
+  }
+  // если видео всё же не запустится по любой причине — не застрянем на чёрном экране
+  setTimeout(() => {
+    if(videoActive && introVideo.paused && introVideo.currentTime === 0){
+      goToMessageScreen();
+    }
+  }, 4000);
+}
+introVideo.addEventListener('click', () => {
+  if(introVideo.muted){
+    introVideo.muted = false;
+    soundHint.classList.remove('show');
+  }
+});
+introVideo.addEventListener('ended', goToMessageScreen);
+introVideo.addEventListener('error', goToMessageScreen); // нет файла видео — просто продолжаем историю
+skipVideoBtn.addEventListener('click', goToMessageScreen);
+
+function goToMessageScreen(){
+  if(!videoActive) return;
+  videoActive = false;
+  introVideo.pause();
+  soundHint.classList.remove('show');
+  goTo('message');
+  setTimeout(startTypewriter, 900);
+}
+
+/* =========================================================
+   5. TYPEWRITER
+========================================================= */
+const twEl = document.getElementById('typewriter-text');
+const clickBtn = document.getElementById('click-btn');
+
+function startTypewriter(){
+  twEl.textContent = '';
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  twEl.appendChild(cursor);
+
+  if(reduceMotion){
+    twEl.textContent = LOVE_TEXT;
+    revealClickButton();
+    return;
+  }
+
+  let i = 0;
+  function tick(){
+    if(i < LOVE_TEXT.length){
+      const ch = LOVE_TEXT[i];
+      cursor.insertAdjacentText('beforebegin', ch);
+      i++;
+      const pause = (ch === '.' || ch === '…') ? 220 : (ch === ' ' ? 40 : 32 + Math.random()*28);
+      setTimeout(tick, pause);
+    } else {
+      cursor.remove();
+      revealClickButton();
+    }
+  }
+  setTimeout(tick, 300);
+}
+function revealClickButton(){
+  setTimeout(() => clickBtn.classList.add('visible'), 500);
+}
+
+clickBtn.addEventListener('click', () => {
+  setPetalDensity(2600);
+  goTo('memory');
+  startMemorySlideshow();
+  setTimeout(() => {
+    stopMemorySlideshow();
+    goTo('final');
+    setPetalDensity(900);
+    runFinalSequence();
+  }, 17200);
+});
+
+/* =========================================================
+   6b. MEMORY SLIDESHOW
+========================================================= */
+let memoryTimer = null;
+function startMemorySlideshow(){
+  const imgs = Array.from(document.querySelectorAll('#memory-frame img'));
+  const dotsWrap = document.getElementById('memory-dots');
+  dotsWrap.innerHTML = '';
+  imgs.forEach(() => {
+    const d = document.createElement('span');
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+  let idx = 0;
+
+  function show(i){
+    imgs.forEach((im, n) => im.classList.toggle('show', n === i));
+    dots.forEach((d, n) => d.classList.toggle('active', n === i));
+  }
+  show(0);
+  if(reduceMotion) return;
+  idx = 0;
+  memoryTimer = setInterval(() => {
+    idx = (idx + 1) % imgs.length;
+    show(idx);
+  }, 2600);
+}
+function stopMemorySlideshow(){
+  if(memoryTimer){ clearInterval(memoryTimer); memoryTimer = null; }
+}
+
+/* =========================================================
+   6. FINAL SCREEN SEQUENCE
+========================================================= */
+function runFinalSequence(){
+  const heart = document.getElementById('heart-outline');
+  const finalText = document.getElementById('final-text');
+
+  setTimeout(() => heart.classList.add('drawn'), 200);
+  setTimeout(() => heart.classList.add('pulse'), 2400);
+  setTimeout(() => finalText.classList.add('shown'), 700);
+
+  setTimeout(() => {
+    finalText.classList.add('faded');
+  }, 7500);
+}
+
+/* =========================================================
+   7. MUSIC TOGGLE
+========================================================= */
+const musicBtn = document.getElementById('music-toggle');
+const music = document.getElementById('bg-music');
+let playing = false;
+musicBtn.addEventListener('click', () => {
+  if(!playing){
+    music.volume = 0.35;
+    music.play().then(() => {
+      playing = true;
+      musicBtn.textContent = '🔈';
+    }).catch(() => {
+      musicBtn.textContent = '🎵';
+    });
+  } else {
+    music.pause();
+    playing = false;
+    musicBtn.textContent = '🎵';
+  }
+});
+</script>
+</body>
+</html>
